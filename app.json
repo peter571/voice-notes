@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "voice-notes",
+    "name": "voice notes",
     "slug": "voice-notes",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -9,7 +9,8 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.peter-koech.voice-notes"
     },
     "android": {
       "adaptiveIcon": {
@@ -32,7 +33,8 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true
