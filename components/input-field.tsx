@@ -2,19 +2,16 @@ import React from "react";
 import { View, TextInput, StyleSheet } from "react-native";
 import { theme } from "@/theme";
 
-interface InputFieldProps {
-  icon: React.ReactNode;
-  placeholder: string;
+interface InputFieldProps extends React.ComponentProps<typeof TextInput> {
+  icon?: React.ReactNode;
 }
 
-export const InputField: React.FC<InputFieldProps> = ({
-  icon,
-  placeholder,
-}) => (
+export const InputField: React.FC<InputFieldProps> = (props) => (
   <View style={styles.inputContainer}>
-    {icon}
+    {props.icon}
     <TextInput
-      placeholder={placeholder}
+      {...props}
+      autoCapitalize="none"
       cursorColor={theme.colors.black}
       style={styles.inputText}
     />
@@ -35,5 +32,6 @@ const styles = StyleSheet.create({
   inputText: {
     fontFamily: theme.fontFamily.body.Montserrat.regular,
     fontSize: theme.fontSize.t4,
+    width: "100%",
   },
 });

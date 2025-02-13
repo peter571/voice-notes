@@ -38,6 +38,7 @@ export default function RootLayout() {
   if (!loaded && !error) {
     return null;
   }
+  
   return (
     <SessionProvider>
       <Slot />

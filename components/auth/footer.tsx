@@ -21,6 +21,10 @@ export const Footer: React.FC<{
             router.push("/sign-in");
           } else if (path == "/sign-in") {
             router.push("/sign-up");
+          } else if (path == "/forgot-password") {
+            router.push("/sign-in");
+          } else {
+            router.push("/sign-in");
           }
         }}
       >
@@ -36,7 +40,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: theme.spacing.s2,
-    flex: 1,
   },
   footerText: {
     fontFamily: theme.fontFamily.body.Montserrat.regular,

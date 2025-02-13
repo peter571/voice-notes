@@ -5,6 +5,7 @@ import {
   Platform,
   StyleSheet,
   KeyboardAvoidingView,
+  Alert,
 } from "react-native";
 import { theme } from "@/theme";
 import Fontisto from "@expo/vector-icons/Fontisto";
@@ -14,56 +15,182 @@ import Checkbox from "expo-checkbox";
 import { InputField } from "@/components/input-field";
 import { Button } from "@/components/button";
 import { SocialButton } from "@/components/auth/social-button";
-import { router } from "expo-router";
 import { Footer } from "@/components/auth/footer";
+import { router } from "expo-router";
+import { useForm, Controller } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import { supabase } from "@/lib/supabase";
+import { useReplaceRoute } from "@/hooks/useReplaceRoute";
 
-const Header: React.FC = () => (
-  <View style={styles.headerContainer}>
-    <Text style={styles.headerTitle}>Create Account</Text>
-    <Text style={styles.headerSubtitle}>
-      Create your account to start managing your voice notes.
-    </Text>
-  </View>
-);
+const schema = yup.object().shape({
+  email: yup.string().required().email("Email must be a valid email address"),
+  password: yup
+    .string()
+    .required()
+    .matches(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+      "Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number and one special character"
+    ),
+  confirmPassword: yup
+    .string()
+    .required()
+    .oneOf([yup.ref("password")], "Passwords must match"),
+  terms: yup
+    .boolean()
+    .required()
+    .oneOf([true], "You must accept the terms and conditions"),
+});
 
-const TermsAndConditions: React.FC = () => (
-  <View style={styles.termsContainer}>
-    <Checkbox
-      style={styles.checkbox}
-      value={true}
-      onValueChange={() => {}}
-      color={theme.colors.primary.DEFAULT}
-    />
-    <Text style={styles.termsText}>I agree with Terms & Conditions</Text>
-  </View>
-);
-
-const Divider: React.FC = () => (
-  <View style={styles.dividerContainer}>
-    <View style={styles.dividerLine} />
-    <Text style={styles.orText}>OR</Text>
-    <View style={styles.dividerLine} />
-  </View>
-);
+type SignUpForm = {
+  email: string;
+  password: string;
+  confirmPassword: string;
+  terms: boolean;
+};
 
 const SignUp: React.FC = () => {
+  const {
+    control,
+    handleSubmit,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm<SignUpForm>({
+    defaultValues: {
+      email: "",
+      password: "",
+      confirmPassword: "",
+      terms: false,
+    },
+    resolver: yupResolver(schema),
+  });
+
+  const onSubmit = async (formData: SignUpForm) => {
+    const { error, data } = await supabase.auth.signUp({
+      email: formData.email,
+      password: formData.password,
+    });
+
+    if (error) {
+      setError("root", {
+        message: error.message,
+      });
+      return;
+    }
+    if (data.user) {
+      Alert.alert(
+        "Account created successfully!",
+        "Check your email to verify your account"
+      );
+      router.replace("/");
+    }
+  };
+
+  useReplaceRoute();
+
   return (
     <SafeAreaView style={styles.container}>
       <Header />
       <KeyboardAvoidingView style={styles.formContainer}>
-        <InputField
-          icon={<Fontisto name="email" size={24} color="black" />}
-          placeholder="Your email address"
+        <Controller
+          control={control}
+          render={({ field: { onChange, value, onBlur } }) => (
+            <InputField
+              icon={<Feather name="mail" size={24} color="black" />}
+              placeholder="Enter email"
+              onChangeText={onChange}
+              value={value}
+              onBlur={onBlur}
+            />
+          )}
+          name="email"
+          rules={{ required: true }}
         />
-        <InputField
-          icon={<Feather name="lock" size={24} color="black" />}
-          placeholder="Create a password"
+        {errors.email && (
+          <Text style={styles.textError}>{errors.email.message}</Text>
+        )}
+        <Controller
+          control={control}
+          render={({ field: { onChange, value, onBlur } }) => (
+            <InputField
+              icon={<Feather name="lock" size={24} color="black" />}
+              placeholder="Enter password"
+              secureTextEntry
+              onChangeText={onChange}
+              value={value}
+              onBlur={onBlur}
+            />
+          )}
+          name="password"
+          rules={{ required: true }}
         />
-        <TermsAndConditions />
-        <Button text="Sign Up" onPress={() => {}} />
+        {errors.password && (
+          <Text style={styles.textError}>{errors.password.message}</Text>
+        )}
+        <Controller
+          control={control}
+          render={({ field: { onChange, value, onBlur } }) => (
+            <InputField
+              icon={<Feather name="lock" size={24} color="black" />}
+              placeholder="Confirm password"
+              secureTextEntry
+              onChangeText={onChange}
+              value={value}
+              onBlur={onBlur}
+            />
+          )}
+          name="confirmPassword"
+          rules={{ required: true }}
+        />
+        {errors.confirmPassword && (
+          <Text style={styles.textError}>{errors.confirmPassword.message}</Text>
+        )}
+        <Controller
+          control={control}
+          render={({ field: { onChange, value } }) => (
+            <View style={styles.termsContainer}>
+              <Checkbox
+                style={styles.checkbox}
+                value={value}
+                onValueChange={onChange}
+                color={theme.colors.primary.DEFAULT}
+              />
+              <Text style={styles.termsText}>
+                I agree with Terms & Conditions
+              </Text>
+            </View>
+          )}
+          name="terms"
+          rules={{ required: true }}
+        />
+        {errors.terms && (
+          <Text style={styles.textError}>{errors.terms.message}</Text>
+        )}
+        {errors.root && (
+          <Text style={styles.textError}>{errors.root.message}</Text>
+        )}
+        <Button
+          text={isSubmitting ? "Submitting..." : "Sign Up"}
+          onPress={handleSubmit(onSubmit)}
+        />
       </KeyboardAvoidingView>
       <Divider />
       <View style={styles.socialContainer}>
+        <SocialButton
+          icon={
+            <Fontisto
+              name="mobile-alt"
+              size={24}
+              color={theme.colors.primary.DEFAULT}
+            />
+          }
+          text="Continue with Phone"
+          color={theme.colors.primary.DEFAULT}
+          backgroundColor="#6a39f410"
+          onPress={() => {
+            router.push("/phone");
+          }}
+        />
         <SocialButton
           icon={<Fontisto name="google" size={24} color="#DE3B40" />}
           text="Continue with Google"
@@ -85,6 +212,23 @@ const SignUp: React.FC = () => {
   );
 };
 
+const Header: React.FC = () => (
+  <View style={styles.headerContainer}>
+    <Text style={styles.headerTitle}>Create Account</Text>
+    <Text style={styles.headerSubtitle}>
+      Create your account to start managing your voice notes.
+    </Text>
+  </View>
+);
+
+const Divider: React.FC = () => (
+  <View style={styles.dividerContainer}>
+    <View style={styles.dividerLine} />
+    <Text style={styles.orText}>OR</Text>
+    <View style={styles.dividerLine} />
+  </View>
+);
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -93,7 +237,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   headerContainer: {
-    flex: 1,
     justifyContent: "center",
     gap: theme.spacing.s5,
   },
@@ -108,6 +251,10 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSize.t4,
     color: theme.colors.black,
     textAlign: "center",
+  },
+  textError: {
+    color: theme.colors.danger.DEFAULT,
+    fontSize: theme.fontSize.t3,
   },
   formContainer: {
     justifyContent: "center",
@@ -130,7 +277,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: theme.spacing.s2,
     justifyContent: "center",
-    flex: 1,
   },
   dividerLine: {
     flex: 1,
