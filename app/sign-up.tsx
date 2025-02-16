@@ -22,6 +22,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { supabase } from "@/lib/supabase";
 import { useReplaceRoute } from "@/hooks/useReplaceRoute";
+import SocialSignIn from "@/components/auth/social-sign-in";
 
 const schema = yup.object().shape({
   email: yup.string().required().email("Email must be a valid email address"),
@@ -175,38 +176,7 @@ const SignUp: React.FC = () => {
         />
       </KeyboardAvoidingView>
       <Divider />
-      <View style={styles.socialContainer}>
-        <SocialButton
-          icon={
-            <Fontisto
-              name="mobile-alt"
-              size={24}
-              color={theme.colors.primary.DEFAULT}
-            />
-          }
-          text="Continue with Phone"
-          color={theme.colors.primary.DEFAULT}
-          backgroundColor="#6a39f410"
-          onPress={() => {
-            router.push("/phone");
-          }}
-        />
-        <SocialButton
-          icon={<Fontisto name="google" size={24} color="#DE3B40" />}
-          text="Continue with Google"
-          color="#DE3B40"
-          backgroundColor="#FDF2F2"
-          onPress={() => {}}
-        />
-        <SocialButton
-          icon={<Fontisto name="apple" size={24} color="black" />}
-          text="Continue with Apple"
-          color={theme.colors.black}
-          backgroundColor={theme.colors.background.input}
-          onPress={() => {}}
-          display={Platform.OS === "ios"}
-        />
-      </View>
+      <SocialSignIn />
       <Footer text_1="Already registered?" text_2="Sign In" />
     </SafeAreaView>
   );
@@ -287,12 +257,6 @@ const styles = StyleSheet.create({
     fontFamily: theme.fontFamily.body.Montserrat.regular,
     fontSize: theme.fontSize.t3,
     color: "#BDC1CAFF",
-  },
-  socialContainer: {
-    gap: theme.spacing.s4,
-    padding: theme.spacing.s4,
-    width: "100%",
-    justifyContent: "center",
   },
 });
 

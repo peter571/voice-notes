@@ -10,13 +10,15 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.peter-koech.voice-notes"
+      "bundleIdentifier": "com.app.notes",
+      "useAppleSignIn": true
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.app.notes"
     },
     "web": {
       "bundler": "metro",
@@ -34,10 +36,22 @@
           "backgroundColor": "#ffffff"
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.516339273877-gnjneg9k6f4a8o21kkc3gocl009r8702"
+        }
+      ],
+      "expo-apple-authentication"
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "5537e3a7-a235-45a7-bdfb-f7ed542f7cc8"
+      }
     }
   }
 }

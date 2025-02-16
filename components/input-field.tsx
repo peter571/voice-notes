@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: theme.colors.background.input,
     paddingHorizontal: theme.spacing.s4,
-    paddingVertical: theme.spacing.s3,
+    paddingVertical: theme.spacing.s4,
     borderRadius: theme.spacing.s1,
     gap: theme.spacing.s2,
     width: "100%",
