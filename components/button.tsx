@@ -4,24 +4,32 @@ import React from "react";
 import { Pressable, Text, StyleSheet } from "react-native";
 import { theme } from "@/theme";
 
-interface ButtonProps {
+interface ButtonProps extends React.ComponentProps<typeof Pressable> {
   text: string;
   onPress: () => void;
   backgroundColor?: string;
   textColor?: string;
 }
 
-export const Button: React.FC<ButtonProps> = ({
-  text,
-  onPress,
-  backgroundColor = theme.colors.primary.DEFAULT,
-  textColor = theme.colors.white,
-}) => (
+export const Button: React.FC<ButtonProps> = (props) => (
   <Pressable
-    style={[styles.button, { backgroundColor }]}
-    onPress={onPress}
+    {...props}
+    style={[
+      styles.button,
+      {
+        backgroundColor: props.backgroundColor ?? theme.colors.primary.DEFAULT,
+      },
+    ]}
+    onPress={props.onPress}
   >
-    <Text style={[styles.buttonText, { color: textColor }]}>{text}</Text>
+    <Text
+      style={[
+        styles.buttonText,
+        { color: props.textColor ?? theme.colors.white },
+      ]}
+    >
+      {props.text}
+    </Text>
   </Pressable>
 );
 

@@ -173,6 +173,7 @@ const SignUp: React.FC = () => {
         <Button
           text={isSubmitting ? "Submitting..." : "Sign Up"}
           onPress={handleSubmit(onSubmit)}
+          disabled={isSubmitting}
         />
       </KeyboardAvoidingView>
       <Divider />
@@ -201,7 +202,6 @@ const Divider: React.FC = () => (
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     padding: theme.spacing.s5,
     gap: theme.spacing.s4,
     justifyContent: "space-between",
@@ -247,6 +247,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: theme.spacing.s2,
     justifyContent: "center",
+    marginVertical: theme.spacing.s8,
   },
   dividerLine: {
     flex: 1,

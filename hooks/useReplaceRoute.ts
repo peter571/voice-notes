@@ -10,5 +10,5 @@ export const useReplaceRoute = () => {
     if (session && session.user) {
       router.replace("/");
     }
-  }, []);
+  }, [session]);
 };

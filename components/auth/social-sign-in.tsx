@@ -128,5 +128,6 @@ const styles = StyleSheet.create({
     padding: theme.spacing.s4,
     width: "100%",
     justifyContent: "center",
+    display: "none"
   },
 });

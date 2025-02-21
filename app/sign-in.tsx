@@ -33,7 +33,6 @@ type SignInForm = {
 };
 
 const SignIn: React.FC = () => {
-  const { session } = useSession();
   const {
     control,
     handleSubmit,
@@ -123,6 +122,7 @@ const SignIn: React.FC = () => {
         <Button
           text={isSubmitting ? "Submitting..." : "Sign In"}
           onPress={handleSubmit(onSubmit)}
+          disabled={isSubmitting}
         />
       </View>
       <Footer text_1="Don't have an account?" text_2="Sign Up" />
