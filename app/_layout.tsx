@@ -41,7 +41,7 @@ export default function RootLayout() {
   
   return (
     <SessionProvider>
-      <Slot />
+      <Slot/>
     </SessionProvider>
   );
 }
