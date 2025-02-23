@@ -11,6 +11,7 @@ import {
 import { useAudioRecorder } from "@/hooks/useAudioRecorder";
 import AudioWaveform from "@/components/audio-waveform";
 import { useAudioProperties } from "@/hooks/useAudioProperties";
+import { speechToText } from "@/open-ai";
 
 export default function Create() {
   const { stopRecording, startRecording, isRecording, uri } =
@@ -72,68 +73,85 @@ export default function Create() {
       >
         {isRecording ? "Recording.." : ""}
       </Text>
-      {uri && <AudioWaveform audioFile={{ uri }} />}
-      <TouchableOpacity
-        style={{
-          flexDirection: "row",
-          borderWidth: 1,
-          borderColor: theme.colors.primary.DEFAULT,
-          borderRadius: theme.borderRadius.xl,
-          padding: theme.spacing.s1,
-          alignItems: "center",
-          gap: theme.spacing.s2,
-          alignSelf: "flex-start",
-        }}
-        activeOpacity={0.8}
-      >
-        <Text
-          style={[
-            globalStyles.paragraph,
-            {
-              color: theme.colors.primary.DEFAULT,
-            },
-          ]}
-        >
-          Generate summary
-        </Text>
-        <MaterialIcons
-          name="summarize"
-          size={24}
-          color={theme.colors.primary.DEFAULT}
-        />
-      </TouchableOpacity>
-      <View
-        style={{
-          gap: theme.spacing.s6,
-        }}
-      >
-        <Text style={globalStyles.title}>Summary</Text>
-        <Text style={globalStyles.paragraph}>
-          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Eos
-          cupiditate autem dolores sequi nobis molestiae dolor ratione id
-          libero? Veritatis consectetur dolores animi modi quo! Ad, voluptatem
-          minima illo dolorum harum obcaecati porro delectus velit.
-        </Text>
-        <Pressable
+      {uri && (
+        <View
           style={{
-            flexDirection: "row",
-            alignItems: "center",
-            gap: theme.spacing.s2,
+            gap: theme.spacing.s6,
           }}
         >
-          <Feather name="save" size={24} color={theme.colors.primary.DEFAULT} />
-          <Text
-            style={[
-              globalStyles.paragraph,
-              {
-                color: theme.colors.primary.DEFAULT,
-              },
-            ]}
+          <AudioWaveform audioFile={{ uri }} />
+          <TouchableOpacity
+            style={{
+              flexDirection: "row",
+              borderWidth: 1,
+              borderColor: theme.colors.primary.DEFAULT,
+              borderRadius: theme.borderRadius.xl,
+              padding: theme.spacing.s1,
+              alignItems: "center",
+              gap: theme.spacing.s2,
+              alignSelf: "flex-start",
+            }}
+            activeOpacity={0.8}
+            onPress={async () => {
+              const result = await speechToText({ uri });
+              console.log("Pressed", result);
+            }}
           >
-            Save
-          </Text>
-        </Pressable>
-      </View>
+            <Text
+              style={[
+                globalStyles.paragraph,
+                {
+                  color: theme.colors.primary.DEFAULT,
+                },
+              ]}
+            >
+              Generate summary
+            </Text>
+            <MaterialIcons
+              name="summarize"
+              size={24}
+              color={theme.colors.primary.DEFAULT}
+            />
+          </TouchableOpacity>
+          <View
+            style={{
+              gap: theme.spacing.s6,
+            }}
+          >
+            <Text style={globalStyles.title}>Summary</Text>
+            <Text style={globalStyles.paragraph}>
+              Lorem ipsum dolor, sit amet consectetur adipisicing elit. Eos
+              cupiditate autem dolores sequi nobis molestiae dolor ratione id
+              libero? Veritatis consectetur dolores animi modi quo! Ad,
+              voluptatem minima illo dolorum harum obcaecati porro delectus
+              velit.
+            </Text>
+            <Pressable
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                gap: theme.spacing.s2,
+              }}
+            >
+              <Feather
+                name="save"
+                size={24}
+                color={theme.colors.primary.DEFAULT}
+              />
+              <Text
+                style={[
+                  globalStyles.paragraph,
+                  {
+                    color: theme.colors.primary.DEFAULT,
+                  },
+                ]}
+              >
+                Save
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+      )}
     </SafeAreaView>
   );
 }

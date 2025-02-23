@@ -1,3 +1,4 @@
+import "react-native-gesture-handler";
 import { Slot, SplashScreen } from "expo-router";
 import { SessionProvider } from "@/context/ctx";
 import { useFonts } from "expo-font";
@@ -14,10 +15,50 @@ import {
   Montserrat_800ExtraBold,
 } from "@expo-google-fonts/montserrat";
 import { useEffect } from "react";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import {
+  configureReanimatedLogger,
+  ReanimatedLogLevel,
+} from "react-native-reanimated";
+import {
+  QueryClient,
+  QueryClientProvider,
+  focusManager,
+  onlineManager,
+} from "@tanstack/react-query";
+import * as Network from "expo-network";
+import { AppStateStatus, Platform, AppState } from "react-native";
+
+function onAppStateChange(status: AppStateStatus) {
+  if (Platform.OS !== "web") {
+    focusManager.setFocused(status === "active");
+  }
+}
+
+onlineManager.setEventListener((setOnline) => {
+  const eventSubscription = Network.addNetworkStateListener((state) => {
+    setOnline(!!state.isConnected);
+  });
+  return eventSubscription.remove;
+});
 
 SplashScreen.preventAutoHideAsync();
 
+// This is the default configuration
+configureReanimatedLogger({
+  level: ReanimatedLogLevel.warn,
+  strict: false, // Reanimated runs in strict mode by default
+});
+
+const queryClient = new QueryClient();
+
 export default function RootLayout() {
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", onAppStateChange);
+
+    return () => subscription.remove();
+  }, []);
+
   const [loaded, error] = useFonts({
     Roboto_400Regular,
     Roboto_500Medium,
@@ -38,10 +79,14 @@ export default function RootLayout() {
   if (!loaded && !error) {
     return null;
   }
-  
+
   return (
-    <SessionProvider>
-      <Slot/>
-    </SessionProvider>
+    <QueryClientProvider client={queryClient}>
+      <GestureHandlerRootView>
+        <SessionProvider>
+          <Slot />
+        </SessionProvider>
+      </GestureHandlerRootView>
+    </QueryClientProvider>
   );
 }

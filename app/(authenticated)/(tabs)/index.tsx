@@ -4,7 +4,7 @@ import { theme } from "@/theme";
 import { InputField } from "@/components/input-field";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { FlashList } from "@shopify/flash-list";
-import { router } from "expo-router";
+import { Link, router } from "expo-router";
 
 export default function Index() {
   const renderItem = ({
@@ -17,7 +17,12 @@ export default function Index() {
     };
   }) => {
     return (
-      <Pressable style={styles.itemContainer}>
+      <Pressable
+        style={styles.itemContainer}
+        onPress={() => {
+          router.push("/note/1123abc");
+        }}
+      >
         <Text style={styles.itemTitle}>{item.title}</Text>
         <Text style={styles.itemSummary}>{item.summary}</Text>
         <Text style={styles.itemDate}>{item.date}</Text>
@@ -43,6 +48,7 @@ export default function Index() {
             height: 40,
             backgroundColor: theme.colors.background.input,
           }}
+          onPress={() => router.push("/profile")}
         >
           <AntDesign
             name="user"
@@ -56,7 +62,13 @@ export default function Index() {
         icon={<Ionicons name="search-outline" size={24} color="black" />}
       />
       <FlashList
-        data={[]}
+        data={[
+          {
+            title: "Title",
+            summary: "Summary",
+            date: "Date",
+          },
+        ]}
         renderItem={renderItem}
         ListEmptyComponent={() => {
           return (
