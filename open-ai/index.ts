@@ -1,5 +1,6 @@
 import axios from "axios";
 import * as FileSystem from "expo-file-system";
+import OpenAI from "openai";
 
 const API_KEY = process.env.EXPO_PUBLIC_OPENAI_API_VN_APP?.toString();
 
@@ -27,7 +28,7 @@ const speechToText = async ({ uri }: { uri: string }) => {
 
     // Create FormData
     const formData = new FormData();
-    //const blob = await fetch(uri).then((res) => res.blob());
+    const blob = await fetch(uri).then((res) => res.blob());
 
     formData.append("file", file as any);
     formData.append("model", "whisper-1");
@@ -36,10 +37,14 @@ const speechToText = async ({ uri }: { uri: string }) => {
       "Content-Type": "multipart/form-data",
       Authorization: `Bearer ${API_KEY}`,
     };
-    const response = await openAI.post("/audio/transcriptions", formData, {
-      headers,
+    const openai = new OpenAI({ apiKey: API_KEY });
+
+    const transcription = await openai.audio.transcriptions.create({
+      file: blob as any,
+      model: "whisper-1",
     });
-    return response.data;
+
+    return transcription.text;
   } catch (error) {
     console.error("Error transcribing audio:", JSON.stringify(error, null, 2));
     throw error;

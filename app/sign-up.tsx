@@ -2,19 +2,16 @@ import React from "react";
 import {
   View,
   Text,
-  Platform,
   StyleSheet,
   KeyboardAvoidingView,
   Alert,
 } from "react-native";
 import { theme } from "@/theme";
-import Fontisto from "@expo/vector-icons/Fontisto";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Feather from "@expo/vector-icons/Feather";
 import Checkbox from "expo-checkbox";
 import { InputField } from "@/components/input-field";
 import { Button } from "@/components/button";
-import { SocialButton } from "@/components/auth/social-button";
 import { Footer } from "@/components/auth/footer";
 import { router } from "expo-router";
 import { useForm, Controller } from "react-hook-form";
