@@ -1,4 +1,4 @@
-import { getUser } from "@/supabase-api/user";
+import { getUser } from "@/supabase-api/api";
 import { useSession } from "@/context/ctx";
 import { useQuery } from "@tanstack/react-query";
 

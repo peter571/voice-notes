@@ -28,6 +28,8 @@ import {
 } from "@tanstack/react-query";
 import * as Network from "expo-network";
 import { AppStateStatus, Platform, AppState } from "react-native";
+import { SheetProvider } from "react-native-actions-sheet";
+import "@/components/sheets";
 
 function onAppStateChange(status: AppStateStatus) {
   if (Platform.OS !== "web") {
@@ -84,7 +86,9 @@ export default function RootLayout() {
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView>
         <SessionProvider>
-          <Slot />
+          <SheetProvider>
+            <Slot />
+          </SheetProvider>
         </SessionProvider>
       </GestureHandlerRootView>
     </QueryClientProvider>

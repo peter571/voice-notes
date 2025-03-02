@@ -1,12 +1,11 @@
-// hooks/useAudioRecorder.ts
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Audio } from "expo-av";
-
 interface AudioRecorderState {
   recording: Audio.Recording | undefined;
   isRecording: boolean;
   uri: string | null;
   error: string | null;
+  timer: number;
 }
 
 export const useAudioRecorder = () => {
@@ -15,6 +14,7 @@ export const useAudioRecorder = () => {
     isRecording: false,
     uri: null,
     error: null,
+    timer: 0,
   });
 
   const [permissionResponse, requestPermission] = Audio.usePermissions();
@@ -72,6 +72,7 @@ export const useAudioRecorder = () => {
         recording,
         isRecording: true,
         error: null,
+        timer: 0,
       }));
       console.log("Recording started");
     } catch (error) {
@@ -132,10 +133,31 @@ export const useAudioRecorder = () => {
     }
   }, []);
 
+  // Timer effect
+  useEffect(() => {
+    let timerInterval: NodeJS.Timeout | undefined;
+    if (state.isRecording) {
+      timerInterval = setInterval(() => {
+        setState((prev) => ({
+          ...prev,
+          timer: prev.timer + 1,
+        }));
+      }, 1000);
+    } else if (!state.isRecording && state.timer !== 0) {
+      clearInterval(timerInterval);
+    }
+    return () => {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+      }
+    };
+  }, [state.isRecording]);
+
   return {
     isRecording: state.isRecording,
     uri: state.uri,
     error: state.error,
+    timer: state.timer,
     startRecording,
     stopRecording,
     playRecording,

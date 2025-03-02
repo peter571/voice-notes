@@ -4,31 +4,62 @@ import { theme } from "@/theme";
 import { InputField } from "@/components/input-field";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { FlashList } from "@shopify/flash-list";
-import { Link, router } from "expo-router";
+import { router } from "expo-router";
+import { useQuery } from "@tanstack/react-query";
+import { fetchUserVoiceNotes, VoiceNote } from "@/supabase-api/api";
+import { useSession } from "@/context/ctx";
+import { formatDbDate } from "@/utils/helpers";
+import { SheetManager } from "react-native-actions-sheet";
+import { useEffect } from "react";
 
 export default function Index() {
-  const renderItem = ({
-    item,
-  }: {
-    item: {
-      title: string;
-      summary: string;
-      date: string;
-    };
-  }) => {
+  const { session } = useSession();
+
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ["notes"],
+    queryFn: () => fetchUserVoiceNotes(session?.user.id!),
+    enabled: !!session?.user.id,
+  });
+
+  useEffect(() => {
+    refetch();
+  }, []);
+
+  const renderItem = ({ item }: { item: VoiceNote }) => {
     return (
       <Pressable
         style={styles.itemContainer}
         onPress={() => {
-          router.push("/note/1123abc");
+          router.push(`/note/${item.id}`);
         }}
       >
-        <Text style={styles.itemTitle}>{item.title}</Text>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: theme.spacing.s5,
+          }}
+        >
+          <Text style={[styles.itemTitle, {}]} numberOfLines={2}>
+            {item.title}
+          </Text>
+          <Pressable
+            onPress={() => {
+              SheetManager.show("NOTE_OPTIONS", {
+                payload: item,
+              });
+            }}
+          >
+            <Ionicons name="ellipsis-vertical" size={20} color="black" />
+          </Pressable>
+        </View>
         <Text style={styles.itemSummary}>{item.summary}</Text>
-        <Text style={styles.itemDate}>{item.date}</Text>
+        <Text style={styles.itemDate}>{formatDbDate(item.created_at!)}</Text>
       </Pressable>
     );
   };
+
   return (
     <SafeAreaView style={styles.safeAreaView}>
       <View
@@ -62,13 +93,7 @@ export default function Index() {
         icon={<Ionicons name="search-outline" size={24} color="black" />}
       />
       <FlashList
-        data={[
-          {
-            title: "Title",
-            summary: "Summary",
-            date: "Date",
-          },
-        ]}
+        data={data || []}
         renderItem={renderItem}
         ListEmptyComponent={() => {
           return (

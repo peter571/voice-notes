@@ -12,11 +12,46 @@ import { useAudioRecorder } from "@/hooks/useAudioRecorder";
 import AudioWaveform from "@/components/audio-waveform";
 import { useAudioProperties } from "@/hooks/useAudioProperties";
 import { speechToText } from "@/open-ai";
+import { formatMinutesSecondsDisplay } from "@/utils/helpers";
+import {
+  postVoiceNote,
+  saveVoiceRecording,
+  VoiceNote,
+} from "@/supabase-api/api";
+import { useSession } from "@/context/ctx";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export default function Create() {
-  const { stopRecording, startRecording, isRecording, uri } =
+  const { stopRecording, startRecording, isRecording, uri, timer } =
     useAudioRecorder();
   const { audioProperties } = useAudioProperties({ uri: uri! });
+  const { session } = useSession();
+  const queryClient = useQueryClient();
+
+  const postVoiceNoteMutation = useMutation({
+    mutationFn: postVoiceNote,
+    onSuccess: () => {
+      console.log("Voice note posted");
+      queryClient.invalidateQueries();
+    },
+  });
+
+  const submitVoiceNote = async () => {
+    if (uri) {
+      const voiceNoteUrl = await saveVoiceRecording(uri, session?.user.id!);
+      const voiceNote: VoiceNote = {
+        user_id: session?.user.id!,
+        title: Date.now().toLocaleString() + " Voice note",
+        duration: timer,
+        audio_url: voiceNoteUrl,
+        transcript:
+          "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fugit tempora placeat, cum error perspiciatis, atque dolorum, minus veniam excepturi mollitia voluptates modi sunt non. Sit error asperiores facilis iste ullam.",
+        summary:
+          "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fugit tempora placeat, cum error perspiciatis, atque dolorum, minus veniam excepturi mollitia voluptates modi sunt non. Sit error asperiores facilis iste ullam.",
+      };
+      postVoiceNoteMutation.mutate(voiceNote);
+    }
+  };
 
   return (
     <SafeAreaView
@@ -67,12 +102,26 @@ export default function Create() {
         />
       </TouchableOpacity>
       <Text
-        style={{
-          textAlign: "center",
-        }}
+        style={[
+          globalStyles.paragraph,
+          {
+            textAlign: "center",
+          },
+        ]}
+      >
+        {formatMinutesSecondsDisplay(timer)}
+      </Text>
+      <Text
+        style={[
+          globalStyles.paragraph,
+          {
+            textAlign: "center",
+          },
+        ]}
       >
         {isRecording ? "Recording.." : ""}
       </Text>
+
       {uri && (
         <View
           style={{
@@ -132,6 +181,7 @@ export default function Create() {
                 alignItems: "center",
                 gap: theme.spacing.s2,
               }}
+              onPress={submitVoiceNote}
             >
               <Feather
                 name="save"
